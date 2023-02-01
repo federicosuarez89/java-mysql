@@ -11,8 +11,12 @@ public class TestJDBC {
         //personaDAO.insertar(persona1);
 
         //Actualizar datos de la base de datos
-        Persona personaModificar = new Persona(4,"Juan Carlos","Esparza","jcesparza@mail.com","123123");
-        personaDAO.actualizar(personaModificar);
+        //Persona personaModificar = new Persona(4,"Juan Carlos","Esparza","jcesparza@mail.com","123123");
+        //personaDAO.actualizar(personaModificar);
+
+        //Eliminamos un registro de la base de datos
+        Persona personaEliminar = new Persona(4);
+        personaDAO.eliminar(personaEliminar);
 
         List<Persona> personas = personaDAO.seleccionar();
         //funcion lambda para recorrer e imprimir la lista de personas
