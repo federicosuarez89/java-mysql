@@ -7,8 +7,12 @@ public class TestJDBC {
         PersonaDAO personaDAO = new PersonaDAO();
 
         //Insertando un nuevo objeto de tipo persona
-        Persona persona1 = new Persona("Carlos","Esparza","cesparza@mail.com","8888888");
-        personaDAO.insertar(persona1);
+        //Persona persona1 = new Persona("Carlos","Esparza","cesparza@mail.com","8888888");
+        //personaDAO.insertar(persona1);
+
+        //Actualizar datos de la base de datos
+        Persona personaModificar = new Persona(4,"Juan Carlos","Esparza","jcesparza@mail.com","123123");
+        personaDAO.actualizar(personaModificar);
 
         List<Persona> personas = personaDAO.seleccionar();
         //funcion lambda para recorrer e imprimir la lista de personas
