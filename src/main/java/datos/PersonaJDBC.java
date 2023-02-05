@@ -1,16 +1,23 @@
 package datos;
 
 import domain.Persona;
-
 import java.sql.*;
 import java.util.*;
 
-public class PersonaDAO {
+public class PersonaJDBC {
+    private  Connection conexionTransaccional;
     private static final String SQL_SELECT = "SELECT id_persona, nombre, apellido, email, telefono FROM persona";
     private static final String SQL_INSERT = "INSERT INTO persona(nombre, apellido, email, telefono) VALUES (?, ?, ?, ?)";
     private static final String SQL_UPDATE = "UPDATE persona SET nombre=?,apellido=?,email=?,telefono=? WHERE id_persona=?";
     private static final String SQL_DELETE = "DELETE FROM persona WHERE id_persona=?";
-    public List<Persona>seleccionar(){
+
+    public PersonaJDBC(){}
+
+    public PersonaJDBC(Connection conexionTransaccional) {
+        this.conexionTransaccional = conexionTransaccional;
+    }
+
+    public List<Persona>seleccionar() throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -18,7 +25,7 @@ public class PersonaDAO {
         List<Persona>personas = new ArrayList<>();
 
         try {
-            conn = Conexion.getConnection();
+            conn = this.conexionTransaccional!= null ? this.conexionTransaccional : Conexion.getConnection();
             stmt = conn.prepareStatement(SQL_SELECT);
             rs = stmt.executeQuery();
             //iteramos la lista para ver si hay mas que recorrer
@@ -28,58 +35,59 @@ public class PersonaDAO {
                 String apellido = rs.getString("apellido");
                 String email = rs.getString("email");
                 String telefono = rs.getString("telefono");
-                //Creamos objetos de tipo persona
-                persona = new Persona(idPersona,nombre,apellido,email,telefono);
+
                 //Agregamos cada persona a la lista
+                persona = new Persona();
+                persona.setIdPersona(idPersona);
+                persona.setNombre(nombre);
+                persona.setApellido(apellido);
+                persona.setEmail(email);
+                persona.setTelefono(telefono);
+
                 personas.add(persona);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
-            try {
-                Conexion.close(rs);
-                Conexion.close(stmt);
+            Conexion.close(rs);
+            Conexion.close(stmt);
+            if (this.conexionTransaccional == null){
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
         }
         return personas;
 
     }
 
-    public int insertar(Persona persona){
+    public int insertar(Persona persona) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
-            conn = Conexion.getConnection();
+            conn = this.conexionTransaccional!= null ? this.conexionTransaccional : Conexion.getConnection();
             stmt = conn.prepareStatement(SQL_INSERT);
             stmt.setString(1, persona.getNombre());
             stmt.setString(2, persona.getApellido());
             stmt.setString(3, persona.getEmail());
             stmt.setString(4, persona.getTelefono());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Ejecutando query: "+SQL_INSERT);
+            rows = stmt.executeUpdate();
+            System.out.println("Registros afectados: "+rows);
         }finally {
-            try {
                 Conexion.close(stmt);
-                Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+                if (this.conexionTransaccional == null){
+                    Conexion.close(conn);
+                }
         }
-        return registros;
+        return rows;
     }
 
-    public int actualizar(Persona persona){
+    public int actualizar(Persona persona) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
-            conn = Conexion.getConnection();
+            conn = this.conexionTransaccional!= null ? this.conexionTransaccional : Conexion.getConnection();
+            System.out.println("Ejecutando query: "+SQL_UPDATE);
             stmt = conn.prepareStatement(SQL_UPDATE);
             stmt.setString(1, persona.getNombre());
             stmt.setString(2, persona.getApellido());
@@ -87,41 +95,36 @@ public class PersonaDAO {
             stmt.setString(4, persona.getTelefono());
             stmt.setInt(5,persona.getIdPersona());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            rows = stmt.executeUpdate();
+            System.out.println("Registros actualizados: "+rows);
         }finally {
-            try {
                 Conexion.close(stmt);
-                Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+                if (this.conexionTransaccional == null){
+                    Conexion.close(conn);
+                }
         }
-        return registros;
+        return rows;
     }
 
-    public int eliminar(Persona persona){
+    public int eliminar(Persona persona) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
-            conn = Conexion.getConnection();
+            conn = this.conexionTransaccional!= null ? this.conexionTransaccional : Conexion.getConnection();
+            System.out.println("Ejecutando query: "+SQL_DELETE);
             stmt = conn.prepareStatement(SQL_DELETE);
             stmt.setInt(1,persona.getIdPersona());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            rows = stmt.executeUpdate();
+            System.out.println("Registros eliminados: "+rows);
         }finally {
-            try {
-                Conexion.close(stmt);
+            Conexion.close(stmt);
+            if (this.conexionTransaccional == null) {
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
         }
-        return registros;
+        return rows;
     }
 
 

@@ -1,14 +1,9 @@
 package datos;
 
-import domain.Persona;
-import domain.Usuario;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import domain.*;
+import java.sql.*;
+import java.util.*;
 
 public class UsuarioJDBC {
     private static final String SQL_SELECT = "SELECT id_usuario, username, password FROM usuario";
@@ -39,13 +34,9 @@ public class UsuarioJDBC {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
                 Conexion.close(rs);
                 Conexion.close(stmt);
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return usuarios;
 
@@ -54,73 +45,67 @@ public class UsuarioJDBC {
     public int insertar(Usuario usuario){
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
             conn = Conexion.getConnection();
+            System.out.println("Ejecutando query: "+SQL_INSERT);
             stmt = conn.prepareStatement(SQL_INSERT);
             stmt.setString(1, usuario.getUsername());
             stmt.setString(2, usuario.getPassword());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
+            rows = stmt.executeUpdate();
+            System.out.println("Registros afectados: "+rows);
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            try {
+
                 Conexion.close(stmt);
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-        return registros;
+        return rows;
     }
 
     public int actualizar(Usuario usuario){
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
             conn = Conexion.getConnection();
+            System.out.println("Ejecutando query: "+SQL_UPDATE);
             stmt = conn.prepareStatement(SQL_UPDATE);
             stmt.setString(1, usuario.getUsername());
             stmt.setString(2, usuario.getPassword());
             stmt.setInt(3, usuario.getId_usuario());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
+            rows = stmt.executeUpdate();
+            System.out.println("Registros actualizados: "+rows);
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            try {
                 Conexion.close(stmt);
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-        return registros;
+        return rows;
     }
 
     public int eliminar(Usuario usuario){
         Connection conn = null;
         PreparedStatement stmt = null;
-        int registros = 0;
+        int rows = 0;
         try {
             conn = Conexion.getConnection();
+            System.out.println("Ejecutando query: "+SQL_DELETE);
             stmt = conn.prepareStatement(SQL_DELETE);
             stmt.setInt(1,usuario.getId_usuario());
             //Vemos la cantidad de registros que fueron afectados
-            registros = stmt.executeUpdate();
+            rows = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            try {
                 Conexion.close(stmt);
                 Conexion.close(conn);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-        return registros;
+        return rows;
     }
 
 }
